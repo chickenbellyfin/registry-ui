@@ -1,20 +1,23 @@
 {% extends "base.html" %}
 {% block content %}
-  <h1 class="title">Image: {{ repo }}:{{ tag }}</h1>
-  <div class="columns is-multiline is-mobile">
-    <div class="column is-narrow">
-      <b class='is-uppercase is-size-7'>platform</b><br/>
-      <span> {{ history.os }}/{{ history.architecture }}</span>
+  <h2>
+    <a class="icon" href="/repo/{{ repo }}"> {% include "back.svg" %}</a>
+    Tag: {{ repo }}:{{ tag }}
+  </h2>
+  <div class="properties">
+    <div>
+      <b>PLATFORM</b><br/>
+      <span>{{ history.os }}/{{ history.architecture }}</span>
     </div>
-    <div class="column is-narrow">
-      <b class='is-uppercase is-size-7'>size</b><br/>
+    <div>
+      <b>SIZE</b><br/>
       <span> {{ history.size_h }}</span>
     </div>
 
   </div>
   <br/>
-  <h2 class="subtitle">Layers</h2>
-  <table class="table is-striped is-hoverable">
+  <h2>Layers</h2>
+  <table>
     <thead>
       <tr>
         <td>Size</td>

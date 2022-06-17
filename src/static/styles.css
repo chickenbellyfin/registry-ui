@@ -1,0 +1,16 @@
+.properties {
+  flex-wrap: wrap;
+}
+
+.properties>div {
+  display: inline-block;
+  margin: 6px;
+}
+
+.properties>div>b {
+  font-size: .8rem;
+}
+
+.icon {
+  color: inherit;
+}

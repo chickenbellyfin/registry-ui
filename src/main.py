@@ -15,7 +15,6 @@ context = {
     'site': re.sub('https?://', '', URL)
 }
 
-
 @app.route('/')
 def list_repositories():
     repositories = registry.repositories()

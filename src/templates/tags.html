@@ -1,6 +1,10 @@
 {% extends "base.html" %}
 {% block content %}
-  <table class="table is-striped">
+  <h2>
+    <a class="icon" href="/">{% include "back.svg" %}</a>
+    Repository: {{ repo }}
+  </h2>
+  <table>
     <thead>
       <tr>
         <td>Tag</td>

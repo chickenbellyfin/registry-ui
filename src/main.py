@@ -18,7 +18,11 @@ else:
     URL = os.environ['REGISTRY_URL']
     logger.info(f'Using registry URL {URL} from env REGISTRY_URL')
 
-registry = DockerApiV2(URL)
+registry = DockerApiV2(
+    URL,
+    username=os.environ.get('REGISTRY_USERNAME'),
+    password=os.environ.get('REGISTRY_PASSWORD')
+)
 context = {
     'site': re.sub('https?://', '', URL)
 }

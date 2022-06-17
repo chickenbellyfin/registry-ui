@@ -1,5 +1,4 @@
 import base64
-import json
 from concurrent.futures import ThreadPoolExecutor
 
 import requests
@@ -25,10 +24,7 @@ class DockerApiV2():
 
 
   def _get(self, path):
-    print(self.base_url + path)
     res = requests.get(self.base_url + path, headers=self.headers)
-    if not res.ok:
-      print(json.dumps(res.json(), indent=2))
     return res.json()
 
   def get_tags(self, repo):

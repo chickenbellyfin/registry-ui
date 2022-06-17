@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+  <table class="table">
+    <thead>
+      <tr>
+        <td>Repository Name</td>
+        <td>Tags</td>
+      </tr>
+    </thead>
+  {% for repository in repositories %}
+    <tr>
+      <td><a href="/repo/{{ repository.repo }}">{{ repository.repo }}</a></td>
+      <td>{{ repository.tag_count }}</td>
+    </tr>
+  {% endfor %}
+  <table>
+{% endblock %}

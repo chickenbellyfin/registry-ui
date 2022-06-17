@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block content %}
+  <h1 class="title">Image: {{ repo }}:{{ tag }}</h1>
+  <div class="columns is-multiline is-mobile">
+    <div class="column is-narrow">
+      <b class='is-uppercase is-size-7'>platform</b><br/>
+      <span> {{ history.os }}/{{ history.architecture }}</span>
+    </div>
+    <div class="column is-narrow">
+      <b class='is-uppercase is-size-7'>size</b><br/>
+      <span> {{ history.size_h }}</span>
+    </div>
+
+  </div>
+  <br/>
+  <h2 class="subtitle">Layers</h2>
+  <table class="table is-striped is-hoverable">
+    <thead>
+      <tr>
+        <td>Size</td>
+        <td>SHA256</td>
+      </tr>
+    </thead>
+    {% for layer in history.layers %}
+      <tr>
+        <td>{{ layer.size_h }}</td>
+        <td>{{ layer.digest }}</td>
+      </tr>
+    {% endfor %}
+  </table>
+{% endblock %}

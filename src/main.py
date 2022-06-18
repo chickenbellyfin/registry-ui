@@ -64,12 +64,12 @@ def main():
     logger.error(f'Registry URL is required')
     exit(1)
 
-  if not URL.startswith('http://') or URL.startswith('https://'):
-    logger.error(f'URL must start with http:// or https://')
+  if not URL.startswith('http://') and not URL.startswith('https://'):
+    logger.error(f'URL "{URL}" must start with http:// or https://')
     exit(1)
 
-  username = os.environ.get('username')
-  password = os.environ.get('password')
+  username = os.environ.get('REGISTRY_USERNAME')
+  password = os.environ.get('REGISTRY_PASSWORD')
 
   theme = os.environ.get('APP_THEME', 'auto')
   if theme not in THEME_CSS:

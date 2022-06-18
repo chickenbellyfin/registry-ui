@@ -1,7 +1,6 @@
 import base64
-
-import requests
-
+import aiohttp
+from loguru import logger
 
 class DockerApiV2():
 
@@ -17,19 +16,26 @@ class DockerApiV2():
     if username and password:
       creds = base64.b64encode(bytes(f'{username}:{password}', 'utf-8')).decode('ascii')
       self.headers['Authorization'] = f'Basic {creds}'
+    self.session = None
+    self.count = 0
 
-  def _get(self, path):
-    res = requests.get(self.base_url + path, headers=self.headers)
-    return res.json()
+  async def _get(self, path):
+    if self.session is None:
+      self.session = aiohttp.ClientSession(base_url=self.base_url)
+    async with self.session.get(path, headers=self.headers) as res:
+      self.count += 1
+      return await res.json(content_type=None)
 
-  def get_catalog(self):
-    return self._get('/v2/_catalog')['repositories']
+  async def get_catalog(self):
+    res = await self._get('/v2/_catalog')
+    return res['repositories']
 
-  def get_tags(self, repo):
-    return self._get(f'/v2/{repo}/tags/list')['tags']
+  async def get_tags(self, repo):
+    res = await self._get(f'/v2/{repo}/tags/list')
+    return res['tags']
 
-  def get_manifest(self, repo, tag):
-    return self._get(f'/v2/{repo}/manifests/{tag}')
+  async def get_manifest(self, repo, tag):
+    return await self._get(f'/v2/{repo}/manifests/{tag}')
 
-  def get_blob(self, repo, digest):
-    return self._get(f'/v2/{repo}/blobs/{digest}')
+  async def get_blob(self, repo, digest):
+    return await self._get(f'/v2/{repo}/blobs/{digest}')

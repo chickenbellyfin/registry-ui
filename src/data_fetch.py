@@ -4,35 +4,31 @@
 Methods for higher level data fetching from docker registry API. These should map to UI
 components and may make multiple API calls and app-specific data transformations.
 """
-from concurrent.futures import ThreadPoolExecutor
-
+import asyncio
 from dateutil import parser
 
 from src import util
 from src.api import DockerApiV2
 
 
-def fetch_repositories(api: DockerApiV2):
-  repositories = api.get_catalog()
-  executor = ThreadPoolExecutor(max_workers=100)
-  tags = executor.map(lambda r: api.get_tags(r), repositories)
-
+async def fetch_repositories(api: DockerApiV2):
+  repositories = await api.get_catalog()
+  tags = await asyncio.gather(*[api.get_tags(r) for r in repositories])
   return [
     {
       'repo': repo,
-      'tag_count': len(tags)
+      'tag_count': len(tag_list)
     }
-    for repo, tags in zip(repositories, tags)
+    for repo, tag_list in zip(repositories, tags)
   ]
 
 
-def fetch_tags(api: DockerApiV2, repo):
-  tags = api.get_tags(repo)
+async def fetch_tags(api: DockerApiV2, repo):
+  tags = await api.get_tags(repo)
 
   # fetch more details for each tag
+  images = await asyncio.gather(*[fetch_image(api, repo, t) for t in tags])
   details = []
-  executor = ThreadPoolExecutor(max_workers=100)
-  images = executor.map(lambda t: fetch_image(api, repo, t), tags)
   for tag, image in zip(tags, images):
     details.append({
       'tag': tag,
@@ -43,10 +39,10 @@ def fetch_tags(api: DockerApiV2, repo):
   return details
 
 
-def fetch_image(api: DockerApiV2, repo, tag):
-  manifest = api.get_manifest(repo, tag)
+async def fetch_image(api: DockerApiV2, repo, tag):
+  manifest = await api.get_manifest(repo, tag)
   digest = manifest['config']['digest']
-  blob = api.get_blob(repo, digest)
+  blob = await api.get_blob(repo, digest)
 
   total_size = manifest['config']['size']
   for layer in manifest['layers']:

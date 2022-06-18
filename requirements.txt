@@ -1,4 +1,4 @@
-flask
-requests
+quart
 python-dateutil
 loguru
+aiohttp

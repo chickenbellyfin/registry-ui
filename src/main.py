@@ -2,7 +2,7 @@ import os
 import re
 import sys
 
-from flask import Flask, render_template
+from quart import Quart, render_template
 from loguru import logger
 from src.data_fetch import fetch_repositories
 
@@ -16,8 +16,8 @@ THEME_CSS = {
   'auto': 'water.min.css'
 }
 
-def create_app(url: str, registry: DockerApiV2, theme: str) -> Flask:
-  app = Flask(__name__)
+def create_app(url: str, registry: DockerApiV2, theme: str) -> Quart:
+  app = Quart(__name__)
 
   # extra context for jinja templates
   context = {
@@ -26,24 +26,24 @@ def create_app(url: str, registry: DockerApiV2, theme: str) -> Flask:
   }
 
   @app.route('/')
-  def list_repositories():
-    repositories = fetch_repositories(registry)
-    return render_template(
+  async def list_repositories():
+    repositories = await fetch_repositories(registry)
+    return await render_template(
       'repositories.html', context=context, repositories=repositories)
 
   @app.route('/repo/<repo>')
-  def list_tags(repo: str):
-    tags = fetch_tags(registry, repo)
-    return render_template('tags.html', context=context, tags=tags, repo=repo)
+  async def list_tags(repo: str):
+    tags = await fetch_tags(registry, repo)
+    return await render_template('tags.html', context=context, tags=tags, repo=repo)
 
   @app.route('/image/<repo>/<tag>')
-  def tag_history(repo, tag):
+  async def tag_history(repo, tag):
     # history = (config + layers) aka image
-    history =  fetch_image(registry, repo, tag) # registry.history(repo, tag)
+    history =  await fetch_image(registry, repo, tag) # registry.history(repo, tag)
     history['size_h'] = util.bytes_str(history['size'])
     for layer in history['layers']:
       layer['size_h'] = util.bytes_str(layer['size'])
-    return render_template('history.html',
+    return await render_template('history.html',
       context=context,
       history=history,
       repo=repo,

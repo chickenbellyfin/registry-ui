@@ -4,9 +4,11 @@ import sys
 
 from flask import Flask, render_template
 from loguru import logger
+from src.data_fetch import fetch_repositories
 
 from src import util
 from src.api import DockerApiV2
+from src.data_fetch import fetch_tags, fetch_tags, fetch_image
 
 THEME_CSS = {
   'light': 'light.min.css',
@@ -25,19 +27,19 @@ def create_app(url: str, registry: DockerApiV2, theme: str) -> Flask:
 
   @app.route('/')
   def list_repositories():
-    repositories = registry.repositories()
+    repositories = fetch_repositories(registry)
     return render_template(
       'repositories.html', context=context, repositories=repositories)
 
   @app.route('/repo/<repo>')
   def list_tags(repo: str):
-    tags = registry.tags(repo)
+    tags = fetch_tags(registry, repo)
     return render_template('tags.html', context=context, tags=tags, repo=repo)
 
   @app.route('/image/<repo>/<tag>')
   def tag_history(repo, tag):
     # history = (config + layers) aka image
-    history = registry.history(repo, tag)
+    history =  fetch_image(registry, repo, tag) # registry.history(repo, tag)
     history['size_h'] = util.bytes_str(history['size'])
     for layer in history['layers']:
       layer['size_h'] = util.bytes_str(layer['size'])

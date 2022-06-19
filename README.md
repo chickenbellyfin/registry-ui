@@ -12,6 +12,11 @@ Built with python, [quart](https://pgjones.gitlab.io/quart/), and [water.css](ht
 
 ## Run
 ```
+docker run -p 5000:80 -e "REGISTRY_URL=http://registry.url" chickenbellyfin/registry-ui
+```
+
+Or, checkout this repo and run:
+```
 pip install -r requirements.txt
 
 python3 -m src.main <http://registry.url>

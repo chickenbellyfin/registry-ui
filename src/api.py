@@ -21,8 +21,8 @@ class DockerApiV2():
 
   async def _get(self, path):
     if self.session is None:
-      self.session = aiohttp.ClientSession(base_url=self.base_url)
-    async with self.session.get(path, headers=self.headers) as res:
+      self.session = aiohttp.ClientSession()
+    async with self.session.get(self.base_url + path, headers=self.headers) as res:
       self.count += 1
       return await res.json(content_type=None)
 

@@ -9,6 +9,9 @@
 pip install -r requirements.txt
 
 python3 -m src.main <http://registry.url>
+
+# If you don't have a registry already, you can use the demo data from this repo:
+$ python3 -m src.main -r http://chickenbellyfin.github.io/registry-ui
 ```
 
 ## Configuration

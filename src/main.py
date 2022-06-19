@@ -1,6 +1,6 @@
+import argparse
 import os
 import re
-import sys
 
 from quart import Quart, render_template
 from loguru import logger
@@ -54,9 +54,15 @@ def create_app(url: str, registry: DockerApiV2, theme: str) -> Quart:
 
 
 def main():
+  parser = argparse.ArgumentParser()
+  parser.add_argument('-r', '--registry', dest='registry', help='Registry URL (with http:// or https://)')
+  parser.add_argument('-u', '--username', dest='username', help='Username for registry basic auth')
+  parser.add_argument('-p', '--password', dest='password', help='Password for registry basic auth')
 
-  if len(sys.argv) > 1:
-    URL = sys.argv[1]
+  args, _ = parser.parse_known_args()
+
+  if args.registry:
+    URL = args.registry
   else:
     URL = os.environ.get('REGISTRY_URL')
 
@@ -68,8 +74,11 @@ def main():
     logger.error(f'URL "{URL}" must start with http:// or https://')
     exit(1)
 
-  username = os.environ.get('REGISTRY_USERNAME')
-  password = os.environ.get('REGISTRY_PASSWORD')
+  logger.info(f'Registry URL is {URL}')
+
+  username = args.username or os.environ.get('REGISTRY_USERNAME')
+  password = args.password or os.environ.get('REGISTRY_PASSWORD')
+  print(username, password)
 
   theme = os.environ.get('APP_THEME', 'auto')
   if theme not in THEME_CSS:
@@ -82,8 +91,9 @@ def main():
     username=username,
     password=password
   )
-  app = create_app(URL, registry, theme)
-  app.run(host="0.0.0.0")
+  return create_app(URL, registry, theme)
+
+app = main()
 
 if __name__ == '__main__':
-  main()
+  app.run('0.0.0.0', port=8000)

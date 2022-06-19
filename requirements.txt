@@ -1,4 +1,5 @@
-quart
-python-dateutil
-loguru
 aiohttp
+hypercorn
+loguru
+python-dateutil
+quart

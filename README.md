@@ -13,14 +13,27 @@ python3 -m src.main <http://registry.url>
 
 ## Configuration
 
-REGISTRY_URL can also be specified as the CLI argument (see Run section above). The CLI arg will take precedence over the environment variable.
-
 | ENV | Required? | Default | Description |
 | --- | --- | --- | --- |
 | REGISTRY_URL | **Required** | | URL for docker registry, including http[s]:// |
 | REGISTRY_USERNAME | | | Username for Basic Auth. If `REGISTRY_PASSWORD` is not set, will not be used |
 | REGISTRY_PASSWORD | | | Password for Basic Auth. Must be set along with `REGISTRY_USERNAME` |
 | APP_THEME | | `auto` |CSS theme to use. Must be `light`, `dark`, or `auto`. auto [selects light or dark based on browser settings.](https://watercss.kognise.dev/)
+
+### CLI
+CLI args can be used in development. They do not work in docker. CLI args take precendence over environment variables.
+```
+usage: main.py [-h] [-r REGISTRY] [-u USERNAME] [-p PASSWORD]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -r REGISTRY, --registry REGISTRY
+                        Registry URL (with http:// or https://)
+  -u USERNAME, --username USERNAME
+                        Username for registry basic auth
+  -p PASSWORD, --password PASSWORD
+                        Password for registry basic auth
+```
 
 
 ## Docker Build
@@ -30,7 +43,7 @@ docker build . -t registryui
 
 ## Docker Run
 ```
-docker run -p 5000:5000 -it registryui http://registry.url
+docker run -p 5000:80 -it registryui http://registry.url
 ```
 
 docker-compose
@@ -40,7 +53,7 @@ services:
     image: registryui
     container_name: registryui
     ports:
-      - 5000:5000
+      - 5000:80
     environment:
       - REGISTRY_URL=http://registry.url
     restart: unless-stopped

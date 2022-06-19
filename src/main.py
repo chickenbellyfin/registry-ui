@@ -2,7 +2,9 @@ import argparse
 import os
 import re
 
-from quart import Quart, render_template
+
+from sanic import Sanic
+from sanic_ext import render
 from loguru import logger
 from src.data_fetch import fetch_repositories
 
@@ -16,8 +18,8 @@ THEME_CSS = {
   'auto': 'water.min.css'
 }
 
-def create_app(url: str, registry: DockerApiV2, theme: str) -> Quart:
-  app = Quart(__name__)
+def create_app(url: str, registry: DockerApiV2, theme: str) -> Sanic:
+  app = Sanic(__name__)
 
   # extra context for jinja templates
   context = {
@@ -25,30 +27,39 @@ def create_app(url: str, registry: DockerApiV2, theme: str) -> Quart:
     'theme': THEME_CSS[theme]
   }
 
+  app.static('/static', 'static')
+
   @app.route('/')
-  async def list_repositories():
+  async def list_repositories(request):
     repositories = await fetch_repositories(registry)
-    return await render_template(
-      'repositories.html', context=context, repositories=repositories)
+    return await render(
+      'repositories.html', context={
+        'context': context,
+        'repositories': repositories
+      })
 
   @app.route('/repo/<repo>')
-  async def list_tags(repo: str):
+  async def list_tags(request, repo: str):
     tags = await fetch_tags(registry, repo)
-    return await render_template('tags.html', context=context, tags=tags, repo=repo)
+    return await render('tags.html', context={
+      'context': context,
+      'tags': tags,
+      'repo': repo
+    })
 
   @app.route('/image/<repo>/<tag>')
-  async def tag_history(repo, tag):
+  async def tag_history(request, repo, tag):
     # history = (config + layers) aka image
     history =  await fetch_image(registry, repo, tag) # registry.history(repo, tag)
     history['size_h'] = util.bytes_str(history['size'])
     for layer in history['layers']:
       layer['size_h'] = util.bytes_str(layer['size'])
-    return await render_template('history.html',
-      context=context,
-      history=history,
-      repo=repo,
-      tag=tag
-    )
+    return await render('history.html', context={
+      'context': context,
+      'history': history,
+      'repo': repo,
+      'tag': tag
+    })
 
   return app
 
@@ -96,4 +107,4 @@ def main():
 app = main()
 
 if __name__ == '__main__':
-  app.run('0.0.0.0', port=8000)
+  app.run('0.0.0.0', debug=os.environ.get('APP_DEBUG', 'true') != 'false')

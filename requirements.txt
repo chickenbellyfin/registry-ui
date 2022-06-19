@@ -1,5 +1,7 @@
 aiohttp
 hypercorn
+Jinja2
 loguru
 python-dateutil
-quart
+sanic
+sanic_ext

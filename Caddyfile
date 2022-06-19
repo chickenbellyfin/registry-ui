@@ -1,7 +1,0 @@
-:80 {
-  root public
-  handle /static/* {
-    file_server
-  }
-  reverse_proxy localhost:8000
-}

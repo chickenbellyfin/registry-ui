@@ -8,6 +8,8 @@
 * Minimal web interface
 * Basic Auth
 
+Built with python, [quart](https://pgjones.gitlab.io/quart/), and [water.css](https://watercss.kognise.dev/)
+
 ## Run
 ```
 pip install -r requirements.txt

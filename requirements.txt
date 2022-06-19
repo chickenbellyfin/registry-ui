@@ -1,5 +1,0 @@
-aiohttp
-hypercorn
-loguru
-python-dateutil
-quart

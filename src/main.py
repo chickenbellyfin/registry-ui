@@ -11,7 +11,7 @@ from src.data_fetch import fetch_repositories
 
 from src import util
 from src.api import ApiCredentials, DockerApiV2, UnauthorizedApiError
-from src.data_fetch import fetch_tags, fetch_tags, fetch_image
+from src.data_fetch import fetch_tags, fetch_tags, fetch_image, fetch_image_list
 
 THEME_CSS = {
   'light': 'light.min.css',
@@ -82,11 +82,10 @@ def create_app(url: str, registry: DockerApiV2, theme: str, enable_login) -> San
   @app.get('/image/<repo>/<tag>')
   @auth
   async def tag_history(request, repo, tag, creds=None):
-    # history = (config + layers) aka image
-    history =  await fetch_image(registry, repo, tag, creds=creds) # registry.history(repo, tag)
+    images =  await fetch_image_list(registry, repo, tag, creds=creds) # registry.history(repo, tag)
     return await render('history.html', context={
       'context': context,
-      'history': history,
+      'images': images,
       'repo': repo,
       'tag': tag
     })

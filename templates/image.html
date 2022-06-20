@@ -1,0 +1,68 @@
+<div class="properties">
+  <div>
+    <b>PLATFORM</b><br/>
+    <span>{{ image.os }}/{{ image.architecture }}</span>
+  </div>
+  <div>
+    <b>SIZE</b><br/>
+    <span> {{ image.size_h }}</span>
+  </div>
+
+  {% if image.entrypoint is not none %}
+  <div>
+    <b>ENTRYPOINT</b><br/>
+    <span><code>{{ image.entrypoint }}</code></span>
+  </div>
+  {% endif %}
+  {% if image.cmd is not none %}
+  <div>
+    <b>CMD</b><br/>
+    <span><code>{{ image.cmd }}</code></span>
+  </div>
+  {% endif %}
+  <div>
+    <b>WORKING DIR</b><br/>
+    <span><code>{{ image.blob.config.WorkingDir }}</code></span>
+  </div>
+  <div>
+    <b>PORTS</b><br/>
+    <span>{{ image.ports }}</code></span>
+  </div>
+  <div>
+    <b>CREATED AT</b><br/>
+    <span>{{ image.date }}</span>
+  </div>
+</div>
+<details>
+  <summary class="property-title">ENVIRONMENT</summary>
+  <table>
+    {% for e in image.environment %}
+    <tr>
+      <td>{{ e.key }}</td>
+      <td>{{ e.value }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+</details>
+<br/>
+<h2>Layers</h2>
+<table>
+  <thead>
+    <tr>
+      <td>Date</td>
+      <td>Size</td>
+      <td>SHA256</td>
+      <td>Command</td>
+    </tr>
+  </thead>
+  {% for layer in image.layers %}
+    <tr>
+      <td>{{ layer.date }}</td>
+      <td>{{ layer.size_h }}</td>
+      <td>{{ layer.short_digest }}</td>
+      <td style="overflow-x: scroll; ">
+        <code>{{ layer.command }}</code>
+      </td>
+    </tr>
+  {% endfor %}
+</table>

@@ -4,72 +4,14 @@
     <a class="icon" href="/repo/{{ repo }}"> {% include "back.svg" %}</a>
     Tag: {{ repo }}:{{ tag }}
   </h2>
-  <div class="properties">
-    <div>
-      <b>PLATFORM</b><br/>
-      <span>{{ history.os }}/{{ history.architecture }}</span>
-    </div>
-    <div>
-      <b>SIZE</b><br/>
-      <span> {{ history.size_h }}</span>
-    </div>
-
-    {% if history.entrypoint is not none %}
-    <div>
-      <b>ENTRYPOINT</b><br/>
-      <span><code>{{ history.entrypoint }}</code></span>
-    </div>
-    {% endif %}
-    {% if history.cmd is not none %}
-    <div>
-      <b>CMD</b><br/>
-      <span><code>{{ history.cmd }}</code></span>
-    </div>
-    {% endif %}
-    <div>
-      <b>WORKING DIR</b><br/>
-      <span><code>{{ history.blob.config.WorkingDir }}</code></span>
-    </div>
-    <div>
-      <b>PORTS</b><br/>
-      <span>{{ history.ports }}</code></span>
-    </div>
-    <div>
-      <b>CREATED AT</b><br/>
-      <span>{{ history.date }}</span>
-    </div>
-  </div>
-  <details>
-    <summary class="property-title">ENVIRONMENT</summary>
-    <table>
-      {% for e in history.environment %}
-      <tr>
-        <td>{{ e.key }}</td>
-        <td>{{ e.value }}</td>
-      </tr>
-      {% endfor %}
-    </table>
-  </details>
-  <br/>
-  <h2>Layers</h2>
-  <table>
-    <thead>
-      <tr>
-        <td>Date</td>
-        <td>Size</td>
-        <td>SHA256</td>
-        <td>Command</td>
-      </tr>
-    </thead>
-    {% for layer in history.layers %}
-      <tr>
-        <td>{{ layer.date }}</td>
-        <td>{{ layer.size_h }}</td>
-        <td>{{ layer.short_digest }}</td>
-        <td style="overflow-x: scroll; ">
-          <code>{{ layer.command }}</code>
-        </td>
-      </tr>
+   {% if images|length > 1 %}
+    {% for image in images %}
+      <details>
+        <summary>{{ image.os }}/{{ image.architecture }}</summary>
+        {% with image=image %}{% include 'image.html' %}{% endwith %}
+      </details>
     {% endfor %}
-  </table>
+  {% else %}
+    {% with image=images[0] %}{% include 'image.html' %}{% endwith %}
+  {% endif %}
 {% endblock %}

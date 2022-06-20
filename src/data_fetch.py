@@ -75,10 +75,16 @@ async def fetch_tags(api: DockerApiV2, repo, creds=None):
     })
   return details
 
+async def fetch_manifest_details(api: DockerApiV2, repo, manifest=None, manifest_digest=None, creds=None):
+  """ Fetch image details given a manifest or a digest
+  If we get a digest, we must first fetch the manifest
+  """
+  if manifest is not None:
+    digest = manifest['config']['digest']
+  else:
+    manifest = await api.get_manifest(repo, manifest_digest, creds=creds)
+    digest = manifest['config']['digest']
 
-async def fetch_image(api: DockerApiV2, repo, tag, creds=None):
-  manifest = await api.get_manifest(repo, tag, creds=creds)
-  digest = manifest['config']['digest']
   blob = await api.get_blob(repo, digest, creds=creds)
 
   total_size = manifest['config']['size']
@@ -123,3 +129,22 @@ async def fetch_image(api: DockerApiV2, repo, tag, creds=None):
     'blob': blob,
     'environment': environment
   }
+
+
+async def fetch_image(api: DockerApiV2, repo, tag, creds=None):
+  manifest = await api.get_manifest(repo, tag, creds=creds)
+  return await fetch_manifest_details(api, repo, manifest, creds=creds)
+
+async def fetch_image_list(api: DockerApiV2, repo, tag, creds=None):
+  manifests = await api.get_manifest_list(repo, tag, creds=creds)
+
+  # docker API might return a manifest or a manifest list
+  # if it returns a manifest, it has .config.digest, otherwise the manifest has .digest
+  images = []
+  for manifest in manifests:
+    if manifest.get('config'):
+      images.append(fetch_manifest_details(api, repo, manifest=manifest, creds=creds))
+    else:
+      images.append(fetch_manifest_details(api, repo, manifest_digest=manifest['digest'], creds=creds))
+
+  return await asyncio.gather(*images)

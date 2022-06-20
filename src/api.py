@@ -28,15 +28,16 @@ class DockerApiV2():
     self.session = None
     self.count = 0
 
-  async def _get(self, path, creds=None):
+  async def _get(self, path, headers=None, creds=None):
     if self.session is None:
       self.session = aiohttp.ClientSession()
 
-    headers = {**self.headers}
+    req_headers = {**self.headers}
+    if headers:
+      req_headers.update(headers)
     if creds:
-      headers.update(creds.headers)
-
-    async with self.session.get(self.base_url + path, headers=headers) as res:
+      req_headers.update(creds.headers)
+    async with self.session.get(self.base_url + path, headers=req_headers) as res:
       if res.status == 401:
         raise UnauthorizedApiError
       self.count += 1
@@ -52,6 +53,17 @@ class DockerApiV2():
 
   async def get_manifest(self, repo, tag, creds=None):
     return await self._get(f'/v2/{repo}/manifests/{tag}', creds=creds)
+
+  async def get_manifest_list(self, repo, tag, creds=None):
+    res = await self._get(
+      f'/v2/{repo}/manifests/{tag}',
+      headers={'Accept': 'application/vnd.docker.distribution.manifest.v2+json,application/vnd.docker.distribution.manifest.list.v2+json'},
+      creds=creds
+    )
+    if res.get('mediaType') == 'application/vnd.docker.distribution.manifest.v2+json':
+      return [res]
+    else:
+      return res['manifests']
 
   async def get_blob(self, repo, digest, creds=None):
     return await self._get(f'/v2/{repo}/blobs/{digest}', creds=creds)

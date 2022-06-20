@@ -84,3 +84,64 @@ services:
       - REGISTRY_URL=http://registry.url
     restart: unless-stopped
 ```
+
+### Push
+```
+docker buildx build --platform linux/amd64,linux/arm64 --tag chickenbellyfin/registry-ui --push .
+```
+
+## Example: Hosting alongside regsitry with HTTPS & basic auth
+It is possible to host the web app at the same URL as the registry using a web server/reverse proxy such as [caddy](https://caddyserver.com/).
+
+This setup will allow you to host a registry at `https://my.registry.url` which allows image push/pull to `my.registry.url/<image>:<tag>`, and shows a web ui with a login page at that url in the browser. The credentials for docker client and for web access will be the same as what is configured in the registry's htpasswd.
+
+docker-compose.yaml:
+```
+services:
+  caddy:
+    image: caddy
+    container_name: caddy
+    restart: unless-stopped
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - certs-volume:/data
+
+  registry:
+    image: registry:2
+    container_name: registry
+    restart: unless-stopped
+    volumes:
+      - 'registry-volume:/var/lib/registry'
+      - './htpasswd:/auth'
+    environment:
+    # How to configure registry basic auth
+    # https://docs.docker.com/registry/deploying/#native-basic-auth
+      - REGSITRY_AUTH=htpasswd
+      - REGISTRY_AUTH_HTPASSWD_REALM=Registry Realm
+      - REGISTRY_AUTH_HTPASSWD_PATH=/auth/htpasswd
+
+  registryui:
+    image: chickenbellyfin/registryui
+    container_name: registryui
+    restart: unless-stopped
+    environment:
+      - REGISTRY_URL=https://my.registry.url
+      - APP_ENABLE_LOGIN=true
+
+volumes:
+  certs-volume:
+  registry-volume:
+```
+
+Caddyfile:
+```
+my.registry.url {
+  handle /v2* {
+    reverse_proxy registry:5000
+  }
+  reverse_proxy registryui:8000
+}
+```

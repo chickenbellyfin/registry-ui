@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block content %}
+<form action="/submit_login", method="POST">
+  <label for="username">Registry Username</label>
+  <input name="username" required/>
+  <label for="password">Registry Password</label>
+  <input type="password" name="password" required/>
+  <input type="submit" value="Login"/>
+</form>
+{% endblock %}

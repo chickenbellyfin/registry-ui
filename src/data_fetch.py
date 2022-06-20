@@ -48,9 +48,9 @@ def merge_layers(layers, history):
   return list(map(format_layer, result))
 
 
-async def fetch_repositories(api: DockerApiV2):
-  repositories = await api.get_catalog()
-  tags = await asyncio.gather(*[api.get_tags(r) for r in repositories])
+async def fetch_repositories(api: DockerApiV2, creds=None):
+  repositories = await api.get_catalog(creds=creds)
+  tags = await asyncio.gather(*[api.get_tags(r, creds=creds) for r in repositories])
   return [
     {
       'repo': repo,
@@ -60,11 +60,11 @@ async def fetch_repositories(api: DockerApiV2):
   ]
 
 
-async def fetch_tags(api: DockerApiV2, repo):
-  tags = await api.get_tags(repo)
+async def fetch_tags(api: DockerApiV2, repo, creds=None):
+  tags = await api.get_tags(repo, creds=creds)
 
   # fetch more details for each tag
-  images = await asyncio.gather(*[fetch_image(api, repo, t) for t in tags])
+  images = await asyncio.gather(*[fetch_image(api, repo, t, creds=creds) for t in tags])
   details = []
   for tag, image in zip(tags, images):
     details.append({
@@ -76,10 +76,10 @@ async def fetch_tags(api: DockerApiV2, repo):
   return details
 
 
-async def fetch_image(api: DockerApiV2, repo, tag):
-  manifest = await api.get_manifest(repo, tag)
+async def fetch_image(api: DockerApiV2, repo, tag, creds=None):
+  manifest = await api.get_manifest(repo, tag, creds=creds)
   digest = manifest['config']['digest']
-  blob = await api.get_blob(repo, digest)
+  blob = await api.get_blob(repo, digest, creds=creds)
 
   total_size = manifest['config']['size']
   for layer in manifest['layers']:

@@ -2,7 +2,6 @@
 | | | |
 | -- | -- | -- |
 | ![](/screenshots/indexd.jpg) | ![](/screenshots/tagsd.jpg) | ![](/screenshots/imaged.jpg) |
-| ![](/screenshots/indexl.jpg) | ![](/screenshots/tagsl.jpg) | ![](/screenshots/imagel.jpg) |
 
 ## Features
 * Minimal web interface

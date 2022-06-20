@@ -7,6 +7,7 @@
 ## Features
 * Minimal web interface
 * Basic Auth & login
+* multi-arch support
 
 Built with python, [sanic](https://sanic.dev), and [water.css](https://watercss.kognise.dev/)
 
@@ -75,19 +76,14 @@ docker run -p 8000:8000 -it registryui http://registry.url
 docker-compose
 ```
 services:
-  registryui:
-    image: registryui
-    container_name: registryui
+  registry-ui:
+    image: registry-ui
+    container_name: registry-ui
     ports:
       - 8000:8000
     environment:
       - REGISTRY_URL=http://registry.url
     restart: unless-stopped
-```
-
-### Push
-```
-docker buildx build --platform linux/amd64,linux/arm64 --tag chickenbellyfin/registry-ui --push .
 ```
 
 ## Example: Hosting alongside regsitry with HTTPS & basic auth
@@ -123,9 +119,9 @@ services:
       - REGISTRY_AUTH_HTPASSWD_REALM=Registry Realm
       - REGISTRY_AUTH_HTPASSWD_PATH=/auth/htpasswd
 
-  registryui:
-    image: chickenbellyfin/registryui
-    container_name: registryui
+  registry-ui:
+    image: chickenbellyfin/registry-ui
+    container_name: registry-ui
     restart: unless-stopped
     environment:
       - REGISTRY_URL=https://my.registry.url
@@ -142,6 +138,11 @@ my.registry.url {
   handle /v2* {
     reverse_proxy registry:5000
   }
-  reverse_proxy registryui:8000
+  reverse_proxy registry-ui:8000
 }
+```
+
+### Push
+```
+docker buildx build --platform linux/amd64,linux/arm64 --tag chickenbellyfin/registry-ui --push .
 ```

@@ -51,9 +51,6 @@ def create_app(url: str, registry: DockerApiV2, theme: str) -> Sanic:
   async def tag_history(request, repo, tag):
     # history = (config + layers) aka image
     history =  await fetch_image(registry, repo, tag) # registry.history(repo, tag)
-    history['size_h'] = util.bytes_str(history['size'])
-    for layer in history['layers']:
-      layer['size_h'] = util.bytes_str(layer['size'])
     return await render('history.html', context={
       'context': context,
       'history': history,

@@ -10,7 +10,7 @@
     </thead>
   {% for repository in repositories %}
     <tr>
-      <td><a href="/repo/{{ repository.repo }}">{{ repository.repo }}</a></td>
+      <td><a href="/repo?repo={{ repository.repo }}">{{ repository.repo }}</a></td>
       <td>{{ repository.tag_count }}</td>
     </tr>
   {% endfor %}

@@ -69,9 +69,10 @@ def create_app(url: str, registry: DockerApiV2, theme: str, enable_login) -> San
         'repositories': repositories
       })
 
-  @app.get('/repo/<repo>')
+  @app.get('/repo')
   @auth
-  async def list_tags(request, repo: str, creds=None):
+  async def list_tags(request, creds=None):
+    repo = request.args.get('repo')
     tags = await fetch_tags(registry, repo, creds=creds)
     return await render('tags.html', context={
       'context': context,
@@ -79,9 +80,11 @@ def create_app(url: str, registry: DockerApiV2, theme: str, enable_login) -> San
       'repo': repo
     })
 
-  @app.get('/image/<repo>/<tag>')
+  @app.get('/image')
   @auth
-  async def tag_history(request, repo, tag, creds=None):
+  async def tag_history(request, creds=None):
+    repo = request.args.get('repo')
+    tag = request.args.get('tag')
     images =  await fetch_image_list(registry, repo, tag, creds=creds) # registry.history(repo, tag)
     return await render('history.html', context={
       'context': context,

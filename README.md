@@ -1,6 +1,8 @@
 # Docker Registry UI
+
 | | | |
 | -- | -- | -- |
+| | ![](/static/logo.svg) | |
 | ![](/screenshots/indexd.jpg) | ![](/screenshots/tagsd.jpg) | ![](/screenshots/imaged.jpg) |
 
 ## Features

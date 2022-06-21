@@ -6,9 +6,10 @@
     <title>Registry UI</title>
     <link rel="stylesheet" href="/static/{{ context.theme }}">
     <link rel="stylesheet" href="/static/styles.css">
+    <link rel="icon" href="/static/logo.svg" type="image/svg+xml">
   </head>
   <body>
-    <h1>{{ context.site }}</h1>
+    <h1><img class="logo" src="/static/logo.svg"/>{{ context.site }}</h1>
     {% block content%}
     {% endblock %}
   </body>

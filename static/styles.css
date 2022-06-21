@@ -7,6 +7,7 @@
 .property-title { font-size: .8rem; }
 
 .icon { color: inherit; }
+.logo { width: 1em; margin-right: .3em; vertical-align: middle;}
 
 td>code {
   margin: 0;

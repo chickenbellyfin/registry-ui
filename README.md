@@ -1,4 +1,5 @@
 # Docker Registry UI
+![Unit Tests](https://github.com/chickenbellyfin/registry-ui/actions/workflows/python-test.yml/badge.svg) 
 
 | | | |
 | -- | -- | -- |

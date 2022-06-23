@@ -148,11 +148,10 @@ my.registry.url {
 ```
 python3 -m pytest
 
-coverage run --source=. -m pytest && coverage report -mi
-
+coverage run --source=src -m pytest && coverage report
 
 # open htmlcov/index.html
-coverage html -i
+coverage html
 ```
 
 ### Push

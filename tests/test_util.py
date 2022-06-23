@@ -9,3 +9,6 @@ def test_format_bytes():
   assert util.format_bytes(999_000_000) == '999.0 MB'
   assert util.format_bytes(1_000_000_000) == '1.0 GB'
   assert util.format_bytes(1_500_000_000) == '1.5 GB'
+
+def test_format_bytes_none():
+  assert util.format_bytes(None) == None

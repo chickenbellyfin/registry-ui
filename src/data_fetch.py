@@ -31,7 +31,7 @@ def format_layer(layer: dict):
   return {
     'date': format_date(layer['created']),
     'command': format_command(layer['created_by']),
-    'size': util.bytes_str(layer['size']) if layer.get('size') else None,
+    'size': util.format_bytes(layer['size']) if layer.get('size') else None,
     'digest_short': format_digest(layer['digest']) if layer.get('digest') else None
   }
 
@@ -122,7 +122,7 @@ async def fetch_manifest_details(api: DockerApiV2, repo, manifest=None, manifest
     'working_dir': blob['config'].get('WorkingDir', '(unset)'),
     'date': format_date(blob['created']),
     'layers': layers,
-    'size': util.bytes_str(total_size),
+    'size': util.format_bytes(total_size),
     'entrypoint': entrypoint,
     'cmd': cmd,
     'ports': ports,

@@ -2,8 +2,8 @@ KB = 1_000
 MB = 1_000_000
 GB = 1_000_000_000
 
-def bytes_str(bytes: int):
-  if not bytes:
+def format_bytes(bytes: int):
+  if bytes is None:
     return None
 
   if bytes < KB:

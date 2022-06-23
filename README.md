@@ -1,5 +1,5 @@
 # Docker Registry UI
-![Unit Tests](https://github.com/chickenbellyfin/registry-ui/actions/workflows/python-test.yml/badge.svg) 
+![Unit Tests](https://github.com/chickenbellyfin/registry-ui/actions/workflows/python-test.yml/badge.svg)
 
 | | | |
 | -- | -- | -- |
@@ -142,6 +142,17 @@ my.registry.url {
   }
   reverse_proxy registry-ui:8000
 }
+```
+
+### Test
+```
+python3 -m pytest
+
+coverage run --source=. -m pytest && coverage report -mi
+
+
+# open htmlcov/index.html
+coverage html -i
 ```
 
 ### Push

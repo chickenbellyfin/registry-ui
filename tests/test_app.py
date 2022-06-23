@@ -53,7 +53,7 @@ async def test_get_image(test_app: Sanic, mock_api: DockerApiV2):
       'size': 1
     },
     'layers': [
-      { 'size': 1 }
+      { 'size': 1, 'digest': 'sha256:abcdef012345'}
     ],
   }]
   mock_api.get_blob.return_value = {
@@ -64,13 +64,20 @@ async def test_get_image(test_app: Sanic, mock_api: DockerApiV2):
     'architecture': 'test_arch',
     'os': 'test_os',
     'created': '2022-01-02T00:00:00.00Z',
-    'history': [{ 'created': '2022-01-01T00:00:00.00Z', 'created_by': 'test_command'}]
+    'history': [
+      { 'created': '2022-01-01T01:00:00.00Z', 'created_by': 'test_command2', 'empty_layer': True},
+      { 'created': '2022-01-01T00:00:00.00Z', 'created_by': 'test_command'}
+    ]
   }
   request, response = await test_app.asgi_client.get("/image?repo=test_repo&tag=test_tag")
   print(response.text)
   assert response.status == 200
+  # image metadata
   assert 'test_repo:test_tag' in response.text
   assert 'test_os/test_arch' in response.text
   assert '2 B' in response.text # total size
   assert '/test/entrypoint --flag' in response.text
   assert 'Jan 01 2022 00:00:00 AM' in response.text
+
+  # layers
+  assert 'abcdef0' in response.text # formatted sha256

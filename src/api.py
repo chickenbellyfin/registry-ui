@@ -1,6 +1,7 @@
 import base64
+from typing import List
+
 import aiohttp
-from loguru import logger
 
 
 class UnauthorizedApiError(Exception):
@@ -43,18 +44,18 @@ class DockerApiV2():
       self.count += 1
       return await res.json(content_type=None)
 
-  async def get_catalog(self, creds=None):
+  async def get_catalog(self, creds=None) -> List[str]:
     res = await self._get('/v2/_catalog', creds=creds)
     return res['repositories']
 
-  async def get_tags(self, repo, creds=None):
+  async def get_tags(self, repo, creds=None) -> List[str]:
     res = await self._get(f'/v2/{repo}/tags/list', creds=creds)
     return res['tags']
 
-  async def get_manifest(self, repo, tag, creds=None):
+  async def get_manifest(self, repo, tag, creds=None) -> dict:
     return await self._get(f'/v2/{repo}/manifests/{tag}', creds=creds)
 
-  async def get_manifest_list(self, repo, tag, creds=None):
+  async def get_manifest_list(self, repo, tag, creds=None) -> List[dict]:
     res = await self._get(
       f'/v2/{repo}/manifests/{tag}',
       headers={'Accept': 'application/vnd.docker.distribution.manifest.v2+json,application/vnd.docker.distribution.manifest.list.v2+json'},
@@ -65,5 +66,5 @@ class DockerApiV2():
     else:
       return res['manifests']
 
-  async def get_blob(self, repo, digest, creds=None):
+  async def get_blob(self, repo, digest, creds=None) -> dict:
     return await self._get(f'/v2/{repo}/blobs/{digest}', creds=creds)

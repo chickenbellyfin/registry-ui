@@ -3,6 +3,9 @@ MB = 1_000_000
 GB = 1_000_000_000
 
 def bytes_str(bytes: int):
+  if not bytes:
+    return None
+
   if bytes < KB:
     return f'{bytes} B'
   elif bytes < MB:

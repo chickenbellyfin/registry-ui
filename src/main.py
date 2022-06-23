@@ -1,17 +1,13 @@
 import argparse
 import os
 import re
-from sys import exc_info
 
-
+from loguru import logger
 from sanic import Sanic, response
 from sanic_ext import render
-from loguru import logger
-from src.data_fetch import fetch_repositories
 
-from src import util
 from src.api import ApiCredentials, DockerApiV2, UnauthorizedApiError
-from src.data_fetch import fetch_tags, fetch_tags, fetch_image, fetch_image_list
+from src.data_fetch import fetch_image_list, fetch_repositories, fetch_tags
 
 THEME_CSS = {
   'light': 'light.min.css',

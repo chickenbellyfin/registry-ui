@@ -5,12 +5,15 @@ Methods for higher level data fetching from docker registry API. These should ma
 components and may make multiple API calls and app-specific data transformations.
 """
 import asyncio
-from datetime import datetime
-from dateutil import parser
 import re
+from datetime import datetime
+from typing import Union
+
+from dateutil import parser
 
 from src import util
 from src.api import DockerApiV2
+
 
 def format_command(created_by: str) -> str:
   return re.sub('/bin/sh -c (#\(nop\) )?', '', created_by)
@@ -19,31 +22,30 @@ def format_digest(sha256: str) -> str:
   """ sha256 is "sha256:$hash" """
   return sha256.split(':')[1][:7]
 
-def format_date(date: datetime) -> str:
+def format_date(date: Union[str, datetime]) -> str:
+  if type(date) == str:
+    date = parser.parse(date)
   return date.strftime('%b %d %Y %H:%M:%S %p')
 
-def format_layer(layer):
-  # todo - this is not correct
-  # manifest only lists non-empty layers
-  result = {**layer}
-  result['date'] = format_date(parser.parse(layer['created']))
-  result['command'] = format_command(layer['created_by'])
-  if layer.get('size'):
-    result['size_h'] = util.bytes_str(layer['size'])
-  if result.get('digest'):
-    result['short_digest'] =  format_digest(layer['digest'])
-
-  return result
+def format_layer(layer: dict):
+  return {
+    'date': format_date(layer['created']),
+    'command': format_command(layer['created_by']),
+    'size': util.bytes_str(layer['size']) if layer.get('size') else None,
+    'digest_short': format_digest(layer['digest']) if layer.get('digest') else None
+  }
 
 def merge_layers(layers, history):
+  """ Merges the layers from a manifest with the history of the blob referenced by the manifest's
+  digest. Each non-empty item in the blob history is paired with the layers in order"""
   result = []
   layer_idx = 0
-  for h in history:
-    if not h.get('empty_layer'):
-      result.append({**layers[layer_idx], **h})
+  for item in history:
+    if not item.get('empty_layer'):
+      result.append({**layers[layer_idx], **item})
       layer_idx += 1
     else:
-      result.append(h)
+      result.append(item)
   result.reverse() # reverse so that newer layers are first
   return list(map(format_layer, result))
 
@@ -70,7 +72,6 @@ async def fetch_tags(api: DockerApiV2, repo, creds=None):
     details.append({
       'tag': tag,
       'size': image['size'],
-      'sizeh': util.bytes_str(image['size']),
       'date': image['date']
     })
   return details
@@ -118,11 +119,10 @@ async def fetch_manifest_details(api: DockerApiV2, repo, manifest=None, manifest
   return {
     'architecture': blob['architecture'],
     'os': blob['os'],
-    'date': format_date(parser.parse(blob['created'])),
-    'config': manifest['config'],
+    'working_dir': blob['config'].get('WorkingDir', '(unset)'),
+    'date': format_date(blob['created']),
     'layers': layers,
-    'size': total_size,
-    'size_h': util.bytes_str(total_size),
+    'size': util.bytes_str(total_size),
     'entrypoint': entrypoint,
     'cmd': cmd,
     'ports': ports,

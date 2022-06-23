@@ -5,7 +5,7 @@
   </div>
   <div>
     <b>SIZE</b><br/>
-    <span> {{ image.size_h }}</span>
+    <span> {{ image.size }}</span>
   </div>
 
   {% if image.entrypoint is not none %}
@@ -22,7 +22,7 @@
   {% endif %}
   <div>
     <b>WORKING DIR</b><br/>
-    <span><code>{{ image.blob.config.WorkingDir }}</code></span>
+    <span><code>{{ image.working_dir }}</code></span>
   </div>
   <div>
     <b>PORTS</b><br/>
@@ -58,8 +58,8 @@
   {% for layer in image.layers %}
     <tr>
       <td>{{ layer.date }}</td>
-      <td>{{ layer.size_h }}</td>
-      <td>{{ layer.short_digest }}</td>
+      <td>{{ layer.size if layer.size }}</td>
+      <td>{{ layer.digest_short if layer.digest_short }}</td>
       <td style="overflow-x: scroll; ">
         <code>{{ layer.command }}</code>
       </td>

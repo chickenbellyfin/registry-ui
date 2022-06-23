@@ -53,7 +53,7 @@ optional arguments:
 | REGISTRY_USERNAME | | | Username for Basic Auth. If `REGISTRY_PASSWORD` is not set, will not be used **See Authorization section** |
 | REGISTRY_PASSWORD | | | Password for Basic Auth. Must be set along with `REGISTRY_USERNAME` **See Authorization section** |
 | APP_THEME | | `auto` |CSS theme to use. Must be `light`, `dark`, or `auto`. auto [selects light or dark based on browser settings.](https://watercss.kognise.dev/)
-| APP_ENABLE_LOGIN | | `false` | Shows a login page if the registry requires credentials. The credentials are forwarded to the registry with basic auth. **See Authorization section**
+| APP_ENABLE_LOGIN | | `true` | Shows a login page if the registry requires credentials. The credentials are forwarded to the registry with basic auth. **See Authorization section**
 | APP_DEBUG | | `true` in development, `false` in docker | Whether to run sanic server in debug mode.
 
 ### About Authorization

@@ -131,7 +131,7 @@ def main():
   logger.info(f'Registry URL is {URL}')
 
   # If username and password are set, the api will try to use those even if the user has not logged in.
-  enable_login =  args.enable_login or env_bool('APP_ENABLE_LOGIN', False)
+  enable_login =  args.enable_login or env_bool('APP_ENABLE_LOGIN', True)
   username = args.username or os.environ.get('REGISTRY_USERNAME')
   password = args.password or os.environ.get('REGISTRY_PASSWORD')
 

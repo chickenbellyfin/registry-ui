@@ -1,5 +1,5 @@
 # Docker Registry UI
-![Unit Tests](https://github.com/chickenbellyfin/registry-ui/actions/workflows/python-test.yml/badge.svg)
+![Unit Tests](https://github.com/chickenbellyfin/registry-ui/actions/workflows/python-test.yml/badge.svg) ![Docker Image Size (latest by date)](https://img.shields.io/docker/image-size/chickenbellyfin/registry-ui)
 
 | | | |
 | -- | -- | -- |

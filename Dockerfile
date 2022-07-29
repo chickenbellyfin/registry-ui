@@ -1,7 +1,7 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Builder Image
 #
-FROM python:3-alpine AS builder
+FROM python:3-slim AS builder
 
 ENV PATH="/app/venv/bin:$PATH"
 
@@ -10,14 +10,6 @@ WORKDIR /app/
 COPY requirements.txt requirements.txt
 
 RUN \
-    echo "**** Install build packages. ****" && \
-        apk --no-cache upgrade && \
-        apk add --no-cache \
-            gcc \
-            musl-dev \
-            python3-dev \
-            alpine-sdk \
-            libffi-dev && \
     echo "**** Build registry ui ****" && \
         python3 -m venv --clear venv && \
         pip install -r requirements.txt --no-cache-dir

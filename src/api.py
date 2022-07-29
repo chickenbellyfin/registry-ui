@@ -23,7 +23,7 @@ class DockerApiV2():
       self.base_url = base_url
 
     self.headers = {
-      'Accept': 'application/vnd.docker.distribution.manifest.v2+json'
+      'Accept': 'application/vnd.docker.distribution.manifest.v2+json,application/vnd.oci.image.manifest.v1+json'
     }
     self.headers.update(ApiCredentials(username, password).headers)
     self.session = None
@@ -58,7 +58,7 @@ class DockerApiV2():
   async def get_manifest_list(self, repo, tag, creds=None) -> List[dict]:
     res = await self._get(
       f'/v2/{repo}/manifests/{tag}',
-      headers={'Accept': 'application/vnd.docker.distribution.manifest.v2+json,application/vnd.docker.distribution.manifest.list.v2+json'},
+      headers={'Accept': 'application/vnd.docker.distribution.manifest.v2+json,application/vnd.docker.distribution.manifest.list.v2+json,application/vnd.oci.image.manifest.v1+json'},
       creds=creds
     )
     if res.get('mediaType') == 'application/vnd.docker.distribution.manifest.v2+json':

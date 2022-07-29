@@ -61,7 +61,7 @@ class DockerApiV2():
       headers={'Accept': 'application/vnd.docker.distribution.manifest.v2+json,application/vnd.docker.distribution.manifest.list.v2+json,application/vnd.oci.image.manifest.v1+json'},
       creds=creds
     )
-    if res.get('mediaType') == 'application/vnd.docker.distribution.manifest.v2+json':
+    if res.get('manifests') is None:
       return [res]
     else:
       return res['manifests']

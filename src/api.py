@@ -50,6 +50,13 @@ class DockerApiV2():
 
   async def get_tags(self, repo, creds=None) -> List[str]:
     res = await self._get(f'/v2/{repo}/tags/list', creds=creds)
+
+    errors  = res.get('errors', [])
+    if len(errors) > 0 and errors[0].get('code') == 'NAME_UNKNOWN':
+      # workaround registry bug - list tags fails when a new repository has a partially pushed image
+      # https://github.com/distribution/distribution/issues/777
+      return []
+
     return res['tags']
 
   async def get_manifest(self, repo, tag, creds=None) -> dict:

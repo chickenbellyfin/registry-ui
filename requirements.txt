@@ -2,4 +2,4 @@ aiohttp
 Jinja2
 loguru
 python-dateutil
-sanic
+sanic==22.9.1

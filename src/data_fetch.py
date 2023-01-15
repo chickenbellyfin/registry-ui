@@ -56,7 +56,7 @@ async def fetch_repositories(api: DockerApiV2, creds=None):
   return [
     {
       'repo': repo,
-      'tag_count': len(tag_list)
+      'tag_count': 0 if tag_list is None else len(tag_list)
     }
     for repo, tag_list in zip(repositories, tags)
   ]
@@ -64,6 +64,8 @@ async def fetch_repositories(api: DockerApiV2, creds=None):
 
 async def fetch_tags(api: DockerApiV2, repo, creds=None):
   tags = await api.get_tags(repo, creds=creds)
+  if tags is None:
+    return []
 
   # fetch more details for each tag
   images = await asyncio.gather(*[fetch_image(api, repo, t, creds=creds) for t in tags])

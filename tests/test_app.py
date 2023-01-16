@@ -1,8 +1,11 @@
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import AsyncMock
+
 import pytest
 from sanic import Sanic
+
 from src.api import DockerApiV2
 from src.app import create_app
+
 
 @pytest.fixture
 def mock_api() -> DockerApiV2:
@@ -70,7 +73,6 @@ async def test_get_image(test_app: Sanic, mock_api: DockerApiV2):
     ]
   }
   request, response = await test_app.asgi_client.get("/image?repo=test_repo&tag=test_tag")
-  print(response.text)
   assert response.status == 200
   # image metadata
   assert 'test_repo:test_tag' in response.text

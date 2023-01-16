@@ -1,9 +1,11 @@
-from unittest.mock import AsyncMock, MagicMock, call
+from unittest.mock import AsyncMock
+
 import pytest
-from sanic import Sanic
 from sanic_testing.testing import SanicASGITestClient
+
 from src.api import DockerApiV2, UnauthorizedApiError
 from src.app import create_app
+
 
 @pytest.fixture
 def mock_api() -> DockerApiV2:

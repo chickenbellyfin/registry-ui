@@ -2,6 +2,8 @@ import argparse
 import os
 
 from loguru import logger
+from sanic import Sanic
+from sanic.worker.loader import AppLoader
 
 from src import app
 from src.api import DockerApiV2
@@ -54,4 +56,7 @@ def main():
 
 
 if __name__ == '__main__':
-  main().run('0.0.0.0', debug=env_bool('APP_DEBUG', True))
+    loader = AppLoader(factory=main)
+    app = loader.load()
+    app.prepare(host='0.0.0.0', dev=env_bool('APP_DEBUG', True))
+    Sanic.serve(primary=app, app_loader=loader)

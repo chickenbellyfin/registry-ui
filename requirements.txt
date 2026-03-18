@@ -2,5 +2,5 @@ aiohttp
 Jinja2
 loguru
 python-dateutil
-sanic
-sanic_ext
+sanic[ext]==25.12.0
+pydantic

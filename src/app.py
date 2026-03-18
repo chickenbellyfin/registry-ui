@@ -12,12 +12,13 @@ THEME_CSS = {
   'auto': 'water.min.css'
 }
 
-def create_app(url: str, registry: DockerApiV2, theme: str, enable_login) -> Sanic:
+def create_app(url: str, registry: DockerApiV2, theme: str, enable_login: bool, display_name: str) -> Sanic:
   app = Sanic('registry-ui')
 
   # extra context for jinja templates
   site_context = {
     'site': re.sub('https?://', '', url),
+    'display_name': display_name,
     'theme': THEME_CSS[theme]
   }
 

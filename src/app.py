@@ -37,8 +37,8 @@ def create_app(url: str, registry: DockerApiV2, theme: str, enable_login: bool, 
     @app.exception(UnauthorizedApiError)
     async def handle_unauthorized(request, exception):
       res = response.redirect('/login')
-      del res.cookies['registry_username']
-      del res.cookies['registry_password']
+      res.cookies.delete_cookie('registry_username')
+      res.cookies.delete_cookie('registry_password')
       return res
 
     @app.get('/login')
@@ -49,8 +49,8 @@ def create_app(url: str, registry: DockerApiV2, theme: str, enable_login: bool, 
     @app.post('/submit_login')
     async def submit_login(request):
       res = response.redirect('/')
-      res.cookies['registry_username'] = request.form.get('username')
-      res.cookies['registry_password'] = request.form.get('password')
+      res.cookies.add_cookie('registry_username', request.form.get('username'))
+      res.cookies.add_cookie('registry_password', request.form.get('password'))
       return res
   else:
     @app.on_request

@@ -6,6 +6,8 @@ from sanic import Sanic
 from src.api import DockerApiV2
 from src.app import create_app
 
+Sanic.test_mode = True
+
 
 @pytest.fixture
 def mock_api() -> DockerApiV2:
@@ -17,7 +19,8 @@ def test_app(mock_api) -> Sanic:
       url='http://test',
       registry=mock_api,
       theme='auto',
-      enable_login=False
+      enable_login=False,
+      display_name='test display name'
     )
     return app
 

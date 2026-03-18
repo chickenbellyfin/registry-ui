@@ -1,6 +1,6 @@
-aiohttp
-Jinja2
-loguru
-python-dateutil
+aiohttp==3.13.3
+Jinja2==3.1.6
+loguru==0.7.3
+python-dateutil==2.9.0.post0
 sanic[ext]==25.12.0
-pydantic
+pydantic==2.12.5

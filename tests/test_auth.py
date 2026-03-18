@@ -1,10 +1,13 @@
 from unittest.mock import AsyncMock
 
 import pytest
+from sanic import Sanic
 from sanic_testing.testing import SanicASGITestClient
 
 from src.api import DockerApiV2, UnauthorizedApiError
 from src.app import create_app
+
+Sanic.test_mode = True
 
 
 @pytest.fixture
@@ -17,7 +20,8 @@ def test_client(mock_api) -> SanicASGITestClient:
       url='http://test',
       registry=mock_api,
       theme='auto',
-      enable_login=True
+      enable_login=True,
+      display_name='test display name'
     )
     return app.asgi_client
 
@@ -36,7 +40,7 @@ async def test_auth_tags_redir(test_client: SanicASGITestClient, mock_api: Docke
   assert response.headers['Location'] == '/login'
 
 @pytest.mark.asyncio
-async def test_auth_catalog_redir(test_client: SanicASGITestClient, mock_api: DockerApiV2):
+async def test_auth_image_redir(test_client: SanicASGITestClient, mock_api: DockerApiV2):
   mock_api.get_manifest_list.side_effect = UnauthorizedApiError()
   request, response = await test_client.get("/image?repo=test_repo&tag=test_tag")
   assert response.status == 302

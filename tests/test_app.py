@@ -51,6 +51,55 @@ async def test_get_repo(test_app: Sanic, mock_api: DockerApiV2):
   assert 'tag3' in response.text
 
 @pytest.mark.asyncio
+async def test_get_repo_oci_index(test_app: Sanic, mock_api: DockerApiV2):
+  """Test tag listing when registry returns an OCI image index (multi-platform manifest)"""
+  mock_api.get_tags.return_value = ['tag1']
+  single_manifest = {
+    'config': {
+      'digest': 'sha256:12345678',
+      'Env': {},
+      'size': 1
+    },
+    'layers': [],
+  }
+  oci_index = {
+    'schemaVersion': 2,
+    'mediaType': 'application/vnd.oci.image.index.v1+json',
+    'manifests': [
+      {
+        'mediaType': 'application/vnd.oci.image.manifest.v1+json',
+        'digest': 'sha256:amd64digest',
+        'size': 2583,
+        'platform': {'architecture': 'amd64', 'os': 'linux'}
+      },
+      {
+        'mediaType': 'application/vnd.oci.image.manifest.v1+json',
+        'digest': 'sha256:attestdigest',
+        'size': 566,
+        'annotations': {
+          'vnd.docker.reference.digest': 'sha256:amd64digest',
+          'vnd.docker.reference.type': 'attestation-manifest'
+        },
+        'platform': {'architecture': 'unknown', 'os': 'unknown'}
+      }
+    ]
+  }
+  # First call returns OCI index, second call (by digest) returns the real manifest
+  mock_api.get_manifest.side_effect = [oci_index, single_manifest]
+  mock_api.get_blob.return_value = {
+    'config': {'Env': {}},
+    'architecture': 'amd64',
+    'os': 'linux',
+    'created': '2022-01-01T00:00:00.00Z',
+    'history': []
+  }
+  request, response = await test_app.asgi_client.get("/repo?repo=test_repo")
+  assert response.status == 200
+  assert 'tag1' in response.text
+  # Verify it resolved the index by fetching the platform manifest digest
+  mock_api.get_manifest.assert_any_call('test_repo', 'sha256:amd64digest', creds=None)
+
+@pytest.mark.asyncio
 async def test_get_image(test_app: Sanic, mock_api: DockerApiV2):
   mock_api.get_manifest_list.return_value = [{
     'config': {
@@ -86,3 +135,52 @@ async def test_get_image(test_app: Sanic, mock_api: DockerApiV2):
 
   # layers
   assert 'abcdef0' in response.text # formatted sha256
+
+@pytest.mark.asyncio
+async def test_get_image_oci_index(test_app: Sanic, mock_api: DockerApiV2):
+  """Test image detail when registry returns manifest list with attestation manifests"""
+  mock_api.get_manifest_list.return_value = [
+    {
+      'mediaType': 'application/vnd.oci.image.manifest.v1+json',
+      'digest': 'sha256:amd64digest',
+      'size': 2583,
+      'platform': {'architecture': 'amd64', 'os': 'linux'}
+    },
+    {
+      'mediaType': 'application/vnd.oci.image.manifest.v1+json',
+      'digest': 'sha256:attestdigest',
+      'size': 566,
+      'annotations': {
+        'vnd.docker.reference.digest': 'sha256:amd64digest',
+        'vnd.docker.reference.type': 'attestation-manifest'
+      },
+      'platform': {'architecture': 'unknown', 'os': 'unknown'}
+    }
+  ]
+  mock_api.get_manifest.return_value = {
+    'config': {
+      'digest': 'sha256:12345678',
+      'Env': {},
+      'size': 1
+    },
+    'layers': [
+      { 'size': 1, 'digest': 'sha256:abcdef012345'}
+    ],
+  }
+  mock_api.get_blob.return_value = {
+    'config': {
+      'Entrypoint': ['/test/entrypoint'],
+      'Env': {},
+    },
+    'architecture': 'amd64',
+    'os': 'linux',
+    'created': '2022-01-02T00:00:00.00Z',
+    'history': [
+      { 'created': '2022-01-01T00:00:00.00Z', 'created_by': 'test_command'}
+    ]
+  }
+  request, response = await test_app.asgi_client.get("/image?repo=test_repo&tag=test_tag")
+  assert response.status == 200
+  assert 'linux/amd64' in response.text
+  # Attestation manifest should have been filtered — only one image fetched
+  mock_api.get_manifest.assert_called_once_with('test_repo', 'sha256:amd64digest', creds=None)

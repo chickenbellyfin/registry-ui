@@ -3,6 +3,12 @@ from typing import List
 
 import aiohttp
 
+_ACCEPT_HEADER = ','.join([
+  'application/vnd.oci.image.index.v1+json',
+  'application/vnd.oci.image.manifest.v1+json',
+  'application/vnd.docker.distribution.manifest.v2+json',
+  'application/vnd.docker.distribution.manifest.list.v2+json'
+])
 
 class UnauthorizedApiError(Exception):
   pass
@@ -23,7 +29,7 @@ class DockerApiV2():
       self.base_url = base_url
 
     self.headers = {
-      'Accept': 'application/vnd.docker.distribution.manifest.v2+json,application/vnd.oci.image.manifest.v1+json'
+      'Accept': _ACCEPT_HEADER
     }
     self.headers.update(ApiCredentials(username, password).headers)
     self.session = None
@@ -65,7 +71,7 @@ class DockerApiV2():
   async def get_manifest_list(self, repo, tag, creds=None) -> List[dict]:
     res = await self._get(
       f'/v2/{repo}/manifests/{tag}',
-      headers={'Accept': 'application/vnd.docker.distribution.manifest.v2+json,application/vnd.docker.distribution.manifest.list.v2+json,application/vnd.oci.image.manifest.v1+json'},
+      headers={'Accept': 'application/vnd.oci.image.index.v1+json,application/vnd.oci.image.manifest.v1+json,application/vnd.docker.distribution.manifest.v2+json,application/vnd.docker.distribution.manifest.list.v2+json'},
       creds=creds
     )
     if res.get('manifests') is None:

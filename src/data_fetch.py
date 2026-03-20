@@ -66,7 +66,6 @@ async def fetch_tags(api: DockerApiV2, repo, creds=None):
   tags = await api.get_tags(repo, creds=creds)
   if tags is None:
     return []
-
   # fetch more details for each tag
   images = await asyncio.gather(*[fetch_image(api, repo, t, creds=creds) for t in tags])
   details = []
@@ -135,13 +134,25 @@ async def fetch_manifest_details(api: DockerApiV2, repo, manifest=None, manifest
 
 async def fetch_image(api: DockerApiV2, repo, tag, creds=None):
   manifest = await api.get_manifest(repo, tag, creds=creds)
+  if manifest.get('manifests'):
+    # This is an image index (manifest list) — resolve to a single platform manifest
+    platform_manifests = [
+      m for m in manifest['manifests']
+      if m.get('annotations', {}).get('vnd.docker.reference.type') != 'attestation-manifest'
+    ]
+    digest = platform_manifests[0]['digest']
+    manifest = await api.get_manifest(repo, digest, creds=creds)
   return await fetch_manifest_details(api, repo, manifest, creds=creds)
 
 async def fetch_image_list(api: DockerApiV2, repo, tag, creds=None):
   manifests = await api.get_manifest_list(repo, tag, creds=creds)
-
   # docker API might return a manifest or a manifest list
   # if it returns a manifest, it has .config.digest, otherwise the manifest has .digest
+  # filter out attestation manifests which don't represent real platform images
+  manifests = [
+    m for m in manifests
+    if m.get('annotations', {}).get('vnd.docker.reference.type') != 'attestation-manifest'
+  ]
   images = []
   for manifest in manifests:
     if manifest.get('config'):
